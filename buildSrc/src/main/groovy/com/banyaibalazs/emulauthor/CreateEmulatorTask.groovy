@@ -1,7 +1,11 @@
+package com.banyaibalazs.emulauthor
+
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
 class CreateEmulatorTask extends SdkAwareTask {
 
+    @Input
     EmulatorSpec emulator
 
     @TaskAction

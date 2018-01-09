@@ -1,8 +1,8 @@
+package com.banyaibalazs.emulauthor
+
 import org.gradle.api.Task
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.Exec
-
 
 class Emulauthor implements Plugin<Project> {
 
@@ -14,13 +14,13 @@ class Emulauthor implements Plugin<Project> {
 
         supportedPluginIds.each { entry ->
             project.plugins.withId(entry.key) { plugin ->
-                apply(project, project.android, project.android."${entry.value}")
+                apply(project, project.android."${entry.value}")
             }
         }
 
     }
 
-    void apply(Project project, def android, def variants) {
+    void apply(Project project, def variants) {
 
         EmulatorSpec spec = project.extensions.create("emulator", EmulatorSpec)
 
@@ -39,16 +39,20 @@ class Emulauthor implements Plugin<Project> {
             dependsOn createEmulator
         }
 
+        Task waitForEmulator = project.tasks.create(name: 'waitForEmulatorToStart', type: WaitForEmulatorTask) {
+            dependsOn startEmulator
+        }
+
         variants.all { v ->
             if (v.testVariant) {
                 Task connectedTest = v.testVariant.connectedInstrumentTest
-                Task my = project.tasks.create(name: "${connectedTest.name}OnEmulator", group: "Verification")
+                Task emulatorTest = project.tasks.create(name: "${connectedTest.name}OnEmulator", group: "Verification")
 
-                connectedTest.mustRunAfter startEmulator
+                connectedTest.mustRunAfter waitForEmulator
 
-                my.dependsOn startEmulator
-                my.dependsOn connectedTest
-                my.finalizedBy stopEmulator
+                emulatorTest.dependsOn waitForEmulator
+                emulatorTest.dependsOn connectedTest
+                emulatorTest.finalizedBy stopEmulator
             }
         }
 

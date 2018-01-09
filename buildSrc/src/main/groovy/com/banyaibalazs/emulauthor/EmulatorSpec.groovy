@@ -1,3 +1,5 @@
+package com.banyaibalazs.emulauthor
+
 class EmulatorSpec {
 
     String abi

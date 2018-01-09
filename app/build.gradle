@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: Emulauthor
+apply plugin: 'com.banyaibalazs.emulauthor'
 
 android {
     compileSdkVersion 26

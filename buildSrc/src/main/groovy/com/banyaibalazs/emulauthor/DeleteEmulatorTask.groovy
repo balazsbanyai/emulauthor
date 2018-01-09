@@ -1,3 +1,5 @@
+package com.banyaibalazs.emulauthor
+
 import org.gradle.api.tasks.TaskAction
 
 class DeleteEmulatorTask extends SdkAwareTask {
