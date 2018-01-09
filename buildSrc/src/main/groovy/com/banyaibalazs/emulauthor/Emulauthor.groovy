@@ -35,8 +35,15 @@ class Emulauthor implements Plugin<Project> {
             finalizedBy deleteEmulator
         }
 
-        Task startEmulator = project.tasks.create(name: 'startEmulatorProcess', type: StartEmulatorTask) {
+        Task startEmulator = project.tasks.create(name: 'startEmulatorProcess', type: StartEmulatorTask) { me ->
             dependsOn createEmulator
+
+            // start emulator early in the build process
+            project.tasks.all { task ->
+                if (task != me) {
+                    task.shouldRunAfter me
+                }
+            }
         }
 
         Task waitForEmulator = project.tasks.create(name: 'waitForEmulatorToStart', type: WaitForEmulatorTask) {
@@ -48,9 +55,10 @@ class Emulauthor implements Plugin<Project> {
                 Task connectedTest = v.testVariant.connectedInstrumentTest
                 Task emulatorTest = project.tasks.create(name: "${connectedTest.name}OnEmulator", group: "Verification")
 
-                connectedTest.mustRunAfter waitForEmulator
+                // postpone waiting task after assemble
+                waitForEmulator.shouldRunAfter v.testVariant.assemble
 
-                emulatorTest.dependsOn waitForEmulator
+                connectedTest.dependsOn waitForEmulator
                 emulatorTest.dependsOn connectedTest
                 emulatorTest.finalizedBy stopEmulator
             }
